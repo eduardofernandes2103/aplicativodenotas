@@ -74,10 +74,12 @@ app.post('/users/:cpf/notes', verifyCpfIndex, (req, res) => {
 
     const {title, content} = req.body
     const id = uuidv4();
+    const created_at = Date()
     const note = {
         id,
         title,
-        content
+        content,
+        created_at
     }
 
     USERS[userIndex].notes.push(note)
@@ -99,6 +101,8 @@ app.get('/users/:cpf/notes', verifyCpfIndex, (req, res) => {
 app.patch('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
     const { cpf } = req.params;
     const { id } = req.params
+    
+    const updated_at = Date()
 
     const userIndex = USERS.findIndex(user => user.cpf === cpf);
     const noteIndex = USERS[userIndex].notes.findIndex(note => note.id === id)
@@ -107,7 +111,12 @@ app.patch('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
         return res.status(404).send({message: "This User doesn't exist"})
     }
 
-    USERS[userIndex].notes[noteIndex] = { ...USERS[userIndex].notes[noteIndex], ...req.body }
+    const updateBody = {
+        ...req.body,
+        updated_at
+    }
+
+    USERS[userIndex].notes[noteIndex] = { ...USERS[userIndex].notes[noteIndex], ...updateBody }
 
     res.json( USERS[userIndex].notes[noteIndex])
 
@@ -122,7 +131,7 @@ app.delete('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
 
     USERS[userIndex].notes.splice(noteIndex,1)
 
-    res.json([])
+    res.json([USERS[userIndex].notes])
 });
 
-app.listen(3000, () => {})
+app.listen(8000, () => {})
