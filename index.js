@@ -63,6 +63,29 @@ app.delete('/users/:cpf', (req, res) => {
       })
 });
 
+app.post('/users/:cpf/notes', (req, res) => {
+    const { cpf } = req.params;
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+
+    if(userIndex === -1){
+        return res.status(404).send({message: "This User doesn't exist"})
+    }
+
+    const {title, content} = req.body
+    const id = uuidv4();
+    const note = {
+        id,
+        title,
+        content
+    }
+
+    USERS[userIndex].notes.push(note)
+    res.json({
+        message: `${title} was added into ${USERS[userIndex].name}'s notes`
+    })
+});
+
 app.get('/users/:cpf/notes', (req, res) => {
     const { cpf } = req.params;
 
@@ -75,6 +98,4 @@ app.get('/users/:cpf/notes', (req, res) => {
     res.json(user.notes)
 });
 
-app.listen(3000, () => {
-    console.log("Running on localhost:3000")
-})
+app.listen(3000, () => {})
