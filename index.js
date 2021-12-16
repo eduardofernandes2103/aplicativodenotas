@@ -27,6 +27,54 @@ app.get('/users', (req, res) => {
     res.json(USERS)
 });
 
+app.patch('/users/:cpf', (req, res) => {
+    const { cpf } = req.params;
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+
+    if(userIndex === -1){
+        return res.status(404).send({message: "This User doesn't exist"})
+    }
+
+    USERS[userIndex] = { ...USERS[userIndex], ...req.body };
+
+    res.json({
+        messagem: "User is updated",
+        users: [
+            USERS[userIndex]
+        ]
+    })
+});
+
+app.delete('/users/:cpf', (req, res) => {
+    const { cpf } = req.params;
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+
+    if(userIndex === -1){
+        return res.status(404).send({message: "This User doesn't exist"})
+    }
+
+    USERS.splice(userIndex,1)
+
+    res.json({
+        "messagem": "User is deleted",
+        "users": []
+      })
+});
+
+app.get('/users/:cpf/notes', (req, res) => {
+    const { cpf } = req.params;
+
+    const user = USERS.find(user => user.cpf === cpf);
+
+    if(user === undefined) {
+       return res.status(404).send({message: "This User doesn't exist"})
+    }
+
+    res.json(user.notes)
+});
+
 app.listen(3000, () => {
     console.log("Running on localhost:3000")
 })
