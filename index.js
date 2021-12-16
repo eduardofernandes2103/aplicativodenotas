@@ -5,6 +5,18 @@ const app = express();
 
 app.use(express.json());
 
+const verifyCpfIndex = (req, res, next) => {
+    const { cpf } = req.params;
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+
+    if(userIndex === -1){
+        return res.status(404).send({message: "This User doesn't exist"})
+    }
+
+    next();
+}
+
 const USERS = []
 
 app.post('/users', (req, res) => {
@@ -27,14 +39,10 @@ app.get('/users', (req, res) => {
     res.json(USERS)
 });
 
-app.patch('/users/:cpf', (req, res) => {
+app.patch('/users/:cpf', verifyCpfIndex, (req, res) => {
     const { cpf } = req.params;
 
     const userIndex = USERS.findIndex(user => user.cpf === cpf);
-
-    if(userIndex === -1){
-        return res.status(404).send({message: "This User doesn't exist"})
-    }
 
     USERS[userIndex] = { ...USERS[userIndex], ...req.body };
 
@@ -46,14 +54,10 @@ app.patch('/users/:cpf', (req, res) => {
     })
 });
 
-app.delete('/users/:cpf', (req, res) => {
+app.delete('/users/:cpf', verifyCpfIndex, (req, res) => {
     const { cpf } = req.params;
 
     const userIndex = USERS.findIndex(user => user.cpf === cpf);
-
-    if(userIndex === -1){
-        return res.status(404).send({message: "This User doesn't exist"})
-    }
 
     USERS.splice(userIndex,1)
 
@@ -63,14 +67,10 @@ app.delete('/users/:cpf', (req, res) => {
       })
 });
 
-app.post('/users/:cpf/notes', (req, res) => {
+app.post('/users/:cpf/notes', verifyCpfIndex, (req, res) => {
     const { cpf } = req.params;
 
     const userIndex = USERS.findIndex(user => user.cpf === cpf);
-
-    if(userIndex === -1){
-        return res.status(404).send({message: "This User doesn't exist"})
-    }
 
     const {title, content} = req.body
     const id = uuidv4();
@@ -86,16 +86,31 @@ app.post('/users/:cpf/notes', (req, res) => {
     })
 });
 
-app.get('/users/:cpf/notes', (req, res) => {
+app.get('/users/:cpf/notes', verifyCpfIndex, (req, res) => {
     const { cpf } = req.params;
 
-    const user = USERS.find(user => user.cpf === cpf);
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
 
-    if(user === undefined) {
-       return res.status(404).send({message: "This User doesn't exist"})
+    const userNotes = USERS[userIndex].notes
+
+    res.json(userNotes)
+});
+
+app.patch('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
+    const { cpf } = req.params;
+    const { id } = req.params
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+    const noteIndex = USERS[userIndex].notes.findIndex(note => note.id === id)
+
+    if(noteIndex === -1){
+        return res.status(404).send({message: "This User doesn't exist"})
     }
 
-    res.json(user.notes)
+    USERS[userIndex].notes[noteIndex] = { ...USERS[userIndex].notes[noteIndex], ...req.body }
+
+    res.json( USERS[userIndex].notes[noteIndex])
+
 });
 
 app.listen(3000, () => {})
