@@ -134,4 +134,4 @@ app.delete('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
     res.json([USERS[userIndex].notes])
 });
 
-app.listen(8000, () => {})
+app.listen(3000, () => {})
