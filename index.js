@@ -113,4 +113,16 @@ app.patch('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
 
 });
 
+app.delete('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
+    const { cpf } = req.params;
+    const { id } = req.params
+
+    const userIndex = USERS.findIndex(user => user.cpf === cpf);
+    const noteIndex = USERS[userIndex].notes.findIndex(note => note.id === id)
+
+    USERS[userIndex].notes.splice(noteIndex,1)
+
+    res.json([])
+});
+
 app.listen(3000, () => {})
