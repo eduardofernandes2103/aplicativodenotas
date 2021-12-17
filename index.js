@@ -129,6 +129,10 @@ app.delete('/users/:cpf/notes/:id', verifyCpfIndex, (req, res) => {
     const userIndex = USERS.findIndex(user => user.cpf === cpf);
     const noteIndex = USERS[userIndex].notes.findIndex(note => note.id === id)
 
+    if(noteIndex === -1){
+        return res.status(404).send({message: "This Note doesn't exist"})
+    }
+
     USERS[userIndex].notes.splice(noteIndex,1)
 
     res.json([USERS[userIndex].notes])
